@@ -1,12 +1,17 @@
 package ie.gmit.sw.command;
 
+import ie.gmit.sw.server.Client;
+import ie.gmit.sw.serialize.Message;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import static ie.gmit.sw.serialize.Code.OK;
+
 public class MenuCommand extends ServerCommand {
 
-    public MenuCommand(ObjectInputStream objIn, ObjectOutputStream objOut) {
-        super(objIn, objOut);
+    public MenuCommand(ObjectInputStream objIn, ObjectOutputStream objOut, Client client) {
+        super(objIn, objOut, client);
     }
 
     @Override
@@ -21,6 +26,6 @@ public class MenuCommand extends ServerCommand {
         sb.append("6. - View the last 10 fitness records.").append(System.lineSeparator());
         sb.append("7. - Delete a record.").append(System.lineSeparator());
         sb.append("==============================================").append(System.lineSeparator());
-        sendMessage(sb.toString());
+        sendMessage(new Message(sb.toString(), OK));
     }
 }

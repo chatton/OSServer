@@ -1,6 +1,6 @@
 package ie.gmit.sw.databases;
 
-import ie.gmit.sw.User;
+import ie.gmit.sw.server.User;
 import ie.gmit.sw.records.FitnessRecord;
 import ie.gmit.sw.records.MealRecord;
 import ie.gmit.sw.records.Record;
@@ -93,7 +93,7 @@ public class Database {
         synchronized (this) {
             final File recordFile = new File("data/user_records/" + userId);
             recordFile.delete(); // method call for side effect, not using return value.
-            for (Record record : records) {
+            for (Record record : records) { // save all but the deleted record.
                 saveRecord(record);
             }
         }
@@ -162,15 +162,13 @@ public class Database {
     }
 
     public boolean nameAvailable(String name) throws IOException {
-        return getUsers().stream().noneMatch(user -> user.getUserName().equals(name));
+        synchronized (this) {
+            return getUsers().stream().noneMatch(user -> user.getUserName().equals(name));
+        }
     }
 
     public void addUser(User user) throws IOException {
         add(user, usersPath);
-    }
-
-    public void addAllRecords(List<Record> records) throws IOException {
-
     }
 
     public void addRecord(Record record) throws IOException {

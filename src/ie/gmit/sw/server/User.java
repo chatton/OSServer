@@ -1,4 +1,4 @@
-package ie.gmit.sw;
+package ie.gmit.sw.server;
 
 import ie.gmit.sw.databases.DatabaseItem;
 
@@ -35,7 +35,7 @@ public class User implements DatabaseItem {
     }
 
     public String toString() {
-        return id + ";" + userName + ";" + passHash + ";" + ppsn + ";" + height + ";" + weight + ";" + age;
+        return "User{userName=" + userName + "}";
     }
 
     public String getUserName() {

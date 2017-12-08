@@ -1,6 +1,9 @@
 package ie.gmit.sw.command;
 
-import ie.gmit.sw.User;
+import ie.gmit.sw.serialize.Code;
+import ie.gmit.sw.serialize.Message;
+import ie.gmit.sw.server.Client;
+import ie.gmit.sw.server.User;
 import ie.gmit.sw.databases.Database;
 
 import java.io.IOException;
@@ -9,8 +12,8 @@ import java.io.ObjectOutputStream;
 
 public class RegisterCommand extends DatabaseCommand {
 
-    public RegisterCommand(ObjectInputStream objIn, ObjectOutputStream objOut, Database db) {
-        super(objIn, objOut, db);
+    public RegisterCommand(ObjectInputStream objIn, ObjectOutputStream objOut, Database db, Client client) {
+        super(objIn, objOut, db, client);
     }
 
     private boolean nameOk(String name) {
@@ -38,46 +41,93 @@ public class RegisterCommand extends DatabaseCommand {
     }
 
 
+    private boolean replyToUser(boolean condition, String okayText, String badText) {
+        if (condition) {
+            sendMessage(new Message(okayText, Code.OK));
+            return true;
+        } else {
+            sendMessage(new Message(badText, Code.BAD));
+            return false;
+        }
+    }
+
     @Override
     public void execute() {
+        sendText("Enter user name: ");
+        Message userNameMessage = readMessage();
+        String userName = userNameMessage.message();
+        System.out.println("Username: " + userName);
+        boolean keepGoing = replyToUser(nameOk(userNameMessage.message()), "User name accepted.", "Bad user name.");
 
-        String userName = sendAndReceive("Enter your new username: ");
-//        System.out.println("Username: " + userName);
-        sendMessage(nameOk(userName) ? "OK" : "BAD");
+        if (!keepGoing) {
+            return;
+        }
 
-        String password = sendAndReceive("Enter your password: ");
-//        System.out.println("Password: " + password);
-        sendMessage(passwordOk(password) ? "OK" : "BAD");
+        sendText("Enter your password: ");
+        Message passwordMessage = readMessage();
+        int passHash = passwordMessage.message().hashCode();
+        System.out.println("Password: " + passwordMessage.message());
+        keepGoing = replyToUser(passwordOk(passwordMessage.message()), "Password okay.", "Password invalid.");
 
-        String ppsn = sendAndReceive("Enter ppsn:");
-//        System.out.println("ppsn: " + ppsn);
-        sendMessage(ppsnOk(ppsn) ? "OK" : "BAD");
+        if (!keepGoing) {
+            return;
+        }
 
-        String height = sendAndReceive("Enter height: ");
-//        System.out.println("Height: " + height);
-        sendMessage(doubleOkay(height) ? "OK" : "BAD");
-        double heightAsDouble = Double.parseDouble(height);
+        sendText("Enter ppsn: ");
+        Message ppsnMessage = readMessage();
+        String ppsn = ppsnMessage.message();
+        System.out.println("PPSN: " + ppsn);
+        keepGoing = replyToUser(ppsnOk(ppsnMessage.message()), "PPSN Okay.", "PPSN invalid.");
 
-        String weight = sendAndReceive("Enter weight: ");
-//        System.out.println("Weight: " + weight);
-        sendMessage(doubleOkay(weight) ? "OK" : "BAD");
-        double weightAsDouble = Double.parseDouble(weight);
+        if (!keepGoing) {
+            return;
+        }
 
-        String age = sendAndReceive("Enter age: ");
-//        System.out.println("Age: " + age);
-        sendMessage(intOkay(age) ? "OK" : "BAD");
-        int ageAsInt = Integer.parseInt(age);
+        sendText("Enter height: ");
+        Message heightMessage = readMessage();
+        System.out.println("Height: " + heightMessage.message());
+        keepGoing = replyToUser(doubleOkay(heightMessage.message()), "Height Okay.", "Height invalid.");
 
-        final User user = new User(userName, password.hashCode(), ppsn, heightAsDouble, weightAsDouble, ageAsInt);
+        if (!keepGoing) {
+            return;
+        }
+
+        double height = Double.parseDouble(heightMessage.message());
+
+
+        sendText("Enter weight: ");
+        Message weightMessage = readMessage();
+        System.out.println("Weight: " + weightMessage.message());
+        keepGoing = replyToUser(doubleOkay(weightMessage.message()), "Weight Okay.", "Weight invalid.");
+
+        if (!keepGoing) {
+            return;
+        }
+
+        double weight = Double.parseDouble(weightMessage.message());
+
+        sendText("Enter age: ");
+        Message ageMessage = readMessage();
+        System.out.println("Age: " + ageMessage.message());
+        keepGoing = replyToUser(doubleOkay(ageMessage.message()), "Age Okay.", "Age invalid.");
+
+        if (!keepGoing) {
+            return;
+        }
+
+        int age = Integer.parseInt(ageMessage.message());
+
+        final User user = new User(userName, passHash, ppsn, height, weight, age);
+//        System.out.println(user);
 
         try {
             System.out.println("Adding user: " + user);
             db.addUser(user);
             System.out.println("Successfully added user.");
-            sendMessage("OK");
+            sendCode(Code.OK);
         } catch (IOException e) {
             System.out.println("Error adding user.");
-            sendMessage("BAD");
+            sendCode(Code.BAD);
         }
     }
 }
