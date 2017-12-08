@@ -34,21 +34,17 @@ public class LoginCommand extends DatabaseCommand {
             e.printStackTrace();
         }
 
+        final boolean userExists = users.stream()
+                .filter(user -> user.getUserName().equals(userName)) // find user with this name.
+                .filter(user -> user.getPassHash() == password.hashCode()) // find users with this password
+                .count() == 1;
 
-//
-        for (User user : users) {
-            System.out.println("USER: " + userName);
-            if (user.getPassHash() == password.hashCode()
-                    && user.getUserName().equals(userName)) {
-                System.out.println("Sending OK");
-                sendMessage(new Message("ok", Code.OK));
-                System.out.println("Client logged in with valid credentials!");
-                client.login();
-                return;
-            }
+        if (userExists) {
+            sendMessage(new Message("ok", Code.OK));
+            System.out.println("Client logged in with valid credentials!");
+            client.login(); // update state of Client object to logged in.
+            return;
         }
         sendMessage(new Message("bad", Code.BAD));
-//        System.out.println("Sending BAD");
-//        sendMessage("BAD");
     }
 }
