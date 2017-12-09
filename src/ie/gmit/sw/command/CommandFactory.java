@@ -29,6 +29,8 @@ public class CommandFactory {
                 return new MenuCommand(objIn, objOut, client);
             case REGISTER:
                 return new RegisterCommand(objIn, objOut, db, client);
+            case ADD_FITNESS:
+                return new AddFitnessRecordCommand(objIn, objOut, db, client);
             default:
                 throw new IllegalArgumentException("Code: " + code + " is not a valid command code.");
         }

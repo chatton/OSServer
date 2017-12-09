@@ -10,6 +10,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -109,8 +110,9 @@ public class Database {
                 }
             }
 
-            try (final BufferedWriter writer = new BufferedWriter(new FileWriter(recordFile, true))) {
-                writer.write(record.toDatabaseFormat() + System.lineSeparator());
+            try (FileWriter fw = new FileWriter(recordFile, true);
+                 BufferedWriter bw = new BufferedWriter(fw)) {
+                bw.write(record.toDatabaseFormat() + System.lineSeparator());
             }
         }
     }
@@ -125,15 +127,6 @@ public class Database {
         }
         throw new IllegalArgumentException("Invalid RecordType provided. Args: " + Arrays.toString(args));
     }
-
-//    public boolean deleteRecord(int recordId) throws IOException {
-//        synchronized (this) {
-//            final List<Record> allRecords = getAllRecords();
-//            final boolean removed = allRecords.removeIf(record -> record.getId() == recordId);
-//            saveRecords(allRecords);
-//            return removed;
-//        }
-//    }
 
 //    private void saveRecords(List<Record> allRecords) throws IOException {
 //        synchronized (this) {

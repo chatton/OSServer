@@ -2,16 +2,21 @@ package ie.gmit.sw.records;
 
 import ie.gmit.sw.databases.DatabaseItem;
 
-public abstract class Record implements DatabaseItem{
+public abstract class Record implements DatabaseItem {
 
+    private static int numRecords = 0;
     private final int id;
     private final int userId;
     private final RecordType type;
 
-    public Record(int id, int userId, RecordType type) {
+    protected Record(int id, int userId, RecordType type) {
         this.id = id;
         this.type = type;
         this.userId = userId;
+    }
+
+    public Record(int userId, RecordType recordType) {
+        this(numRecords++, userId, recordType);
     }
 
     public int getUserId() {
@@ -22,7 +27,7 @@ public abstract class Record implements DatabaseItem{
         return id;
     }
 
-    public RecordType getType(){
+    public RecordType getType() {
         return type;
     }
 

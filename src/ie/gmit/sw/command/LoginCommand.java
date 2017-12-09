@@ -37,12 +37,12 @@ public class LoginCommand extends DatabaseCommand {
         final boolean userExists = users.stream()
                 .filter(user -> user.getUserName().equals(userName)) // find user with this name.
                 .filter(user -> user.getPassHash() == password.hashCode()) // find users with this password
-                .count() == 1;
+                .count() == 1; // should be exactly 1 user with this user/pass combination.
 
         if (userExists) {
             sendMessage(new Message("ok", Code.OK));
             System.out.println("Client logged in with valid credentials!");
-            client.login(); // update state of Client object to logged in.
+            client.login(userName.hashCode()); // update state of Client object to logged in.
             return;
         }
         sendMessage(new Message("bad", Code.BAD));
