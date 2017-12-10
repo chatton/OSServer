@@ -1,12 +1,8 @@
 package ie.gmit.sw.server;
 
 import ie.gmit.sw.command.CommandFactory;
-import ie.gmit.sw.serialize.Code;
 import ie.gmit.sw.serialize.Message;
 import ie.gmit.sw.command.Command;
-import ie.gmit.sw.command.LoginCommand;
-import ie.gmit.sw.command.MenuCommand;
-import ie.gmit.sw.command.RegisterCommand;
 import ie.gmit.sw.databases.Database;
 
 import java.io.IOException;
@@ -14,7 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import static ie.gmit.sw.serialize.Code.BAD;
+import static ie.gmit.sw.serialize.Code.EXIT;
 
 public class HandleUser implements Runnable {
 
@@ -28,27 +24,39 @@ public class HandleUser implements Runnable {
         this.db = db;
     }
 
-    public Message readMessage() {
+    private Message readMessage() {
         try {
             return (Message) objIn.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            return new Message("unable to read message", BAD);
+            // return an "Exit" message instead of null
+            return new Message("Error reading out, disconnecting.", EXIT);
         }
     }
 
     @Override
     public void run() {
-        final Client client = new Client();
+        final Client client = new Client(); // represents the connected client.
         final CommandFactory factory = new CommandFactory(objIn, objOut, db, client);
-        while (true) {
+        while (true) { // stay active until user sends EXIT signal or kills the program.
             final Message choice = readMessage();
-            if (choice.code() == BAD) { // socket disconnected.
+            if (choice.code() == EXIT) { // socket disconnected or user wants to quit.
                 System.out.println("User disconnected.");
+                closeStreams();
                 return;
             }
-
-            Command cmd = factory.makeCommand(choice.code());
+            // based on the code sent, create the relevant command.
+            final Command cmd = factory.makeCommand(choice.code());
+            assert cmd != null;
             cmd.execute();
+        }
+    }
+
+    private void closeStreams() {
+        try {
+            objIn.close();
+            objOut.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -25,6 +25,7 @@ public class MenuCommand extends ServerCommand {
         sb.append("5. - View last 10 records.").append(System.lineSeparator());
         sb.append("6. - View the last 10 fitness records.").append(System.lineSeparator());
         sb.append("7. - Delete a record.").append(System.lineSeparator());
+        sb.append("8. - Exit.").append(System.lineSeparator());
         sb.append("==============================================").append(System.lineSeparator());
         sendMessage(new Message(sb.toString(), OK));
     }

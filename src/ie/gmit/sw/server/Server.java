@@ -14,28 +14,31 @@ public class Server {
     private final Database db;
     private ServerSocket ss;
     private ExecutorService executor;
+    private volatile boolean running = true;
 
     public Server(final int port) {
         this.port = port;
-        db = new Database("data/users.dat", "data/records.dat");
+        db = new Database();
         executor = Executors.newCachedThreadPool();
     }
 
+    public void stop() {
+        running = false;
+    }
 
     public void start() throws IOException {
         ss = new ServerSocket(port);
 
-//        while (true) {
-        System.out.println("Listening for connection.");
-        final Socket socket = ss.accept();
-        System.out.println("Connection received!");
-        executor.submit(new HandleUser(socket, db));
-//        }
+        while (running) {
+            System.out.println("Listening for connection.");
+            final Socket socket = ss.accept();
+            System.out.println("Connection received!");
+            executor.submit(new HandleUser(socket, db));
+        }
 
+        System.out.println("Terminating...");
         executor.shutdown();
-
     }
-
 
 
 }

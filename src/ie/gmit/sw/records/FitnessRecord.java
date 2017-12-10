@@ -25,14 +25,14 @@ public class FitnessRecord extends Record {
         );
     }
 
-//    public String getMode() {
-//        return mode;
-//    }
-//
-//
-//    public double getDuration() {
-//        return duration;
-//    }
+    public String getMode() {
+        return mode;
+    }
+
+
+    public double getDuration() {
+        return duration;
+    }
 
     @Override
     public String toDatabaseFormat() {

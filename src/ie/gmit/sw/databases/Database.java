@@ -38,6 +38,7 @@ public class Database {
     private List<Record> getRecordsForUser(int userId) throws IOException {
         synchronized (this) {
             final File recordFile = new File(recordsPath + userId);
+            System.out.println(recordFile);
             if (recordFile.exists()) {
                 try (final Stream<String> lines = Files.lines(Paths.get(recordFile.getPath()))) {
                     return lines.map(line -> line.split(sep))
@@ -45,8 +46,9 @@ public class Database {
                             .collect(Collectors.toList());
                 }
             }
+            System.out.println("File doesn't exist!");
+            return new ArrayList<>(); // no records found for user
         }
-        return new ArrayList<>(); // no records exist for this user.
     }
 
     @SuppressWarnings("unchecked")
@@ -74,19 +76,23 @@ public class Database {
     }
 
 
-//    private <T extends Record> List<T> getRecordsFor(int userId, int nLast, List<T> records) throws IOException {
-//        final List<T> relevantRecords = records
-//                .stream()
-//                .filter(record -> record.getUserId() == userId)
-//                .collect(Collectors.toList());
-//
-//        int numToSkip = relevantRecords.size() - nLast;
-//        numToSkip = numToSkip < 0 ? 0 : numToSkip;
-//
-//        return relevantRecords.stream()
-//                .skip(numToSkip)
-//                .collect(Collectors.toList());
-//    }
+    public List<FitnessRecord> getNLastFitnessRecords(int userId, int nLast) throws IOException {
+        return getNLastRecordsFor(nLast, getFitnessRecordsForUser(userId));
+    }
+
+    public List<MealRecord> getNLastMealRecords(int userId, int nLast) throws IOException {
+        return getNLastRecordsFor(nLast, getMealRecordsForUser(userId));
+    }
+
+    private <T extends Record> List<T> getNLastRecordsFor(int nLast, List<T> records) throws IOException {
+        int startingPos = records.size() - nLast;
+        startingPos = startingPos < 0 ? 0 : startingPos;
+        final List<T> toReturn = new ArrayList<>();
+        for (int i = startingPos; i < records.size(); i++) {
+            toReturn.add(records.get(i));
+        }
+        return toReturn;
+    }
 
 
     @SuppressWarnings("all")
@@ -99,6 +105,7 @@ public class Database {
             }
         }
     }
+
 
     private void saveRecord(Record record) throws IOException {
         synchronized (this) {
