@@ -1,7 +1,6 @@
 package ie.gmit.sw.command;
 
 import ie.gmit.sw.databases.Database;
-import ie.gmit.sw.records.FitnessRecord;
 import ie.gmit.sw.records.MealRecord;
 import ie.gmit.sw.serialize.Code;
 import ie.gmit.sw.serialize.Message;
@@ -37,7 +36,7 @@ public class AddMealRecordCommand extends DatabaseCommand {
         System.out.println("Description: " + desc);
 
         try {
-            db.addRecord(new MealRecord(client.id(), meal, desc));
+            db.addRecord(new MealRecord(db.getNextRecordId(client.id()), client.id(), meal, desc));
             System.out.println("Added record.");
             sendMessage(new Message("Added record.", Code.OK));
         } catch (IOException e) {

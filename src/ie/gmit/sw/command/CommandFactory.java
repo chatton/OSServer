@@ -35,8 +35,12 @@ public class CommandFactory {
                 return new AddMealRecordCommand(objIn, objOut, db, client);
             case REQUEST_FITNESS:
                 return new DisplayFitnessRecordsCommand(objIn, objOut, db, client);
+            case REQUEST_MEAL:
+                return new DisplayMealRecordsCommand(objIn, objOut, db, client);
+            case DELETE:
+                return new DeleteRecordCommand(objIn, objOut, db, client);
             default:
-                throw new IllegalArgumentException("Code: " + code + " is not a valid command code.");
+                throw new IllegalArgumentException("Code: [" + code + "] is not a valid command code.");
         }
     }
 }

@@ -10,12 +10,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,7 +38,6 @@ public class Database {
     private List<Record> getRecordsForUser(int userId) throws IOException {
         synchronized (this) {
             final File recordFile = new File(recordsPath + userId);
-            System.out.println(recordFile);
             if (recordFile.exists()) {
                 try (final Stream<String> lines = Files.lines(Paths.get(recordFile.getPath()))) {
                     return lines.map(line -> line.split(sep))
@@ -46,7 +45,6 @@ public class Database {
                             .collect(Collectors.toList());
                 }
             }
-            System.out.println("File doesn't exist!");
             return new ArrayList<>(); // no records found for user
         }
     }
@@ -70,28 +68,35 @@ public class Database {
 
     public boolean deleteRecord(int userId, int recordId) throws IOException {
         final List<Record> records = getRecordsForUser(userId);
-        boolean removed = records.removeIf(record -> record.getId() == recordId);
-        overwriteRecords(records, userId);
+        final boolean removed = records.removeIf(record -> record.getId() == recordId);
+        if (removed) { // only overwrite if there was actually something changed.
+            overwriteRecords(records, userId);
+        }
         return removed;
     }
 
-
-    public List<FitnessRecord> getNLastFitnessRecords(int userId, int nLast) throws IOException {
-        return getNLastRecordsFor(nLast, getFitnessRecordsForUser(userId));
+    public List<FitnessRecord> getFitnessRecords(int userId) throws IOException {
+        return getFitnessRecords(userId, 10);
     }
 
-    public List<MealRecord> getNLastMealRecords(int userId, int nLast) throws IOException {
-        return getNLastRecordsFor(nLast, getMealRecordsForUser(userId));
+    public List<FitnessRecord> getFitnessRecords(int userId, int nLast) throws IOException {
+        return nLast(nLast, getFitnessRecordsForUser(userId));
     }
 
-    private <T extends Record> List<T> getNLastRecordsFor(int nLast, List<T> records) throws IOException {
+    public List<MealRecord> getMealRecords(int userId) throws IOException {
+        return getMealRecords(userId, 10);
+    }
+
+    public List<MealRecord> getMealRecords(int userId, int nLast) throws IOException {
+        return nLast(nLast, getMealRecordsForUser(userId));
+    }
+
+    private <T extends Record> List<T> nLast(int nLast, List<T> records) throws IOException {
         int startingPos = records.size() - nLast;
         startingPos = startingPos < 0 ? 0 : startingPos;
-        final List<T> toReturn = new ArrayList<>();
-        for (int i = startingPos; i < records.size(); i++) {
-            toReturn.add(records.get(i));
-        }
-        return toReturn;
+        return records.stream()
+                .skip(startingPos) // skip all but the last n
+                .collect(Collectors.toList()); // return as a list.
     }
 
 
@@ -100,7 +105,7 @@ public class Database {
         synchronized (this) {
             final File recordFile = new File("data/user_records/" + userId);
             recordFile.delete(); // method call for side effect, not using return value.
-            for (Record record : records) { // save all but the deleted record.
+            for (final Record record : records) { // save all but the deleted record.
                 saveRecord(record);
             }
         }
@@ -135,14 +140,6 @@ public class Database {
         throw new IllegalArgumentException("Invalid RecordType provided. Args: " + Arrays.toString(args));
     }
 
-//    private void saveRecords(List<Record> allRecords) throws IOException {
-//        synchronized (this) {
-//            try (final PrintWriter writer = new PrintWriter(recordsPath)) {
-//                allRecords.forEach(record -> writer.write(record.toDatabaseFormat() + System.lineSeparator()));
-//            }
-//        }
-//    }
-
     public List<User> getUsers() throws IOException {
         synchronized (this) {
             try (final Stream<String> lines = Files.lines(Paths.get(usersPath))) {
@@ -165,6 +162,18 @@ public class Database {
         synchronized (this) {
             return getUsers().stream().noneMatch(user -> user.getUserName().equals(name));
         }
+    }
+
+    @SuppressWarnings("all")
+    public int getNextRecordId(int userId) throws IOException {
+        final List<Record> records = getRecordsForUser(userId);
+        final Set<Integer> ids = records.stream().map(Record::getId).collect(Collectors.toSet());
+        for (int i = 0; i < records.size(); i++) {
+            if (!ids.contains(i)) {
+                return i;
+            }
+        }
+        return records.size();
     }
 
     public void addUser(User user) throws IOException {

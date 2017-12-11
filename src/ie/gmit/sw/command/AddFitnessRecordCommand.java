@@ -31,17 +31,21 @@ public class AddFitnessRecordCommand extends DatabaseCommand {
         System.out.println("Mode: " + mode);
 
         sendText("Enter Duration: ");
-        msg = readMessage();
-        double duration = Double.parseDouble(msg.message());
-        System.out.println("Duration: " + duration);
 
         try {
-            db.addRecord(new FitnessRecord(client.id(), mode, duration));
+            msg = readMessage();
+            final double duration = Double.parseDouble(msg.message());
+            System.out.println("Duration: " + duration);
+            db.addRecord(new FitnessRecord(db.getNextRecordId(client.id()), client.id(), mode, duration));
             System.out.println("Added record.");
             sendMessage(new Message("Added record.", Code.OK));
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid duration.");
+            sendMessage(new Message("Invalid duration provided.", Code.BAD));
         } catch (IOException e) {
             System.out.println("Failed to add record.");
             sendMessage(new Message("Failed adding record.", Code.BAD));
         }
+
     }
 }

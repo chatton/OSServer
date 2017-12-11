@@ -32,9 +32,13 @@ public class MealRecord extends Record {
         );
     }
 
-//    public String getDesc() {
-//        return desc;
-//    }
+    public String getDesc() {
+        return desc;
+    }
+
+    public String getMealType() {
+        return mealType;
+    }
 
     @Override
     public String toDatabaseFormat() {

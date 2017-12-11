@@ -16,9 +16,9 @@ public class Server {
     private ExecutorService executor;
     private volatile boolean running = true;
 
-    public Server(final int port) {
+    public Server(final int port, final Database db) {
         this.port = port;
-        db = new Database();
+        this.db = db;
         executor = Executors.newCachedThreadPool();
     }
 
