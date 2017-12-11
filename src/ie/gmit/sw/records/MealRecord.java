@@ -14,15 +14,6 @@ public class MealRecord extends Record {
         this.mealType = mealType;
     }
 
-    public MealRecord(int userId, String type, String desc) {
-        super(userId, RecordType.MEAL);
-        if (desc.length() > 100) {
-            throw new IllegalArgumentException("Description can have a maximum of 100 characters.");
-        }
-        this.mealType = type;
-        this.desc = desc;
-    }
-
     public MealRecord(String[] args) {
         this(
                 Integer.parseInt(args[0]), // record id

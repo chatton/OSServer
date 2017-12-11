@@ -1,5 +1,13 @@
 package ie.gmit.sw.command;
 
+import ie.gmit.sw.command.impl.AddFitnessRecordCommand;
+import ie.gmit.sw.command.impl.AddMealRecordCommand;
+import ie.gmit.sw.command.impl.DeleteRecordCommand;
+import ie.gmit.sw.command.impl.DisplayFitnessRecordsCommand;
+import ie.gmit.sw.command.impl.DisplayMealRecordsCommand;
+import ie.gmit.sw.command.impl.LoginCommand;
+import ie.gmit.sw.command.impl.MenuCommand;
+import ie.gmit.sw.command.impl.RegisterCommand;
 import ie.gmit.sw.databases.Database;
 import ie.gmit.sw.serialize.Code;
 import ie.gmit.sw.server.Client;
@@ -14,6 +22,10 @@ public class CommandFactory {
     private final Client client;
     private final Database db;
 
+    /*
+    A CommandFactory is in charge of producing concrete Command implementations
+    based on the Code provided.
+     */
     public CommandFactory(ObjectInputStream objIn, ObjectOutputStream objOut, Database db, Client client) {
         this.objIn = objIn;
         this.objOut = objOut;

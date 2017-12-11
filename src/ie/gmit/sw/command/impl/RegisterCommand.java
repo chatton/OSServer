@@ -1,5 +1,6 @@
-package ie.gmit.sw.command;
+package ie.gmit.sw.command.impl;
 
+import ie.gmit.sw.command.basecommands.DatabaseCommand;
 import ie.gmit.sw.serialize.Code;
 import ie.gmit.sw.serialize.Message;
 import ie.gmit.sw.server.Client;

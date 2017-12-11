@@ -13,10 +13,6 @@ public class Client {
         loggedIn = true;
     }
 
-    public void logout() {
-        loggedIn = false;
-    }
-
     public int id() {
         return id;
     }

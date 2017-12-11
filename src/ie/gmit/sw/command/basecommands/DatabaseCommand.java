@@ -1,4 +1,4 @@
-package ie.gmit.sw.command;
+package ie.gmit.sw.command.basecommands;
 
 import ie.gmit.sw.server.Client;
 import ie.gmit.sw.databases.Database;
@@ -6,6 +6,10 @@ import ie.gmit.sw.databases.Database;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+/*
+A Database command is identical to a ServerCommand but has a reference
+to a Database object. For any commands that are required to modify the database.
+ */
 public abstract class DatabaseCommand extends ServerCommand {
 
     protected Database db;

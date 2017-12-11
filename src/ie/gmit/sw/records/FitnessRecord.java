@@ -10,12 +10,6 @@ public class FitnessRecord extends Record {
         this.mode = mode;
     }
 
-    public FitnessRecord(int userId, String mode, double duration) {
-        super(userId, RecordType.FITNESS);
-        this.duration = duration;
-        this.mode = mode;
-    }
-
     public FitnessRecord(String[] args) {
         this(
                 Integer.parseInt(args[0]), // record id

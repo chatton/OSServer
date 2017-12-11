@@ -1,5 +1,6 @@
-package ie.gmit.sw.command;
+package ie.gmit.sw.command.basecommands;
 
+import ie.gmit.sw.command.Command;
 import ie.gmit.sw.serialize.Code;
 import ie.gmit.sw.server.Client;
 import ie.gmit.sw.serialize.Message;
@@ -8,6 +9,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+/*
+The ServerCommand is an abstract base class that provides base functionality
+to send and receive Message objects from the Object Input and Output streams provided.
+ */
 public abstract class ServerCommand implements Command {
     private final ObjectOutputStream objOut;
     private final ObjectInputStream objIn;
@@ -40,13 +45,8 @@ public abstract class ServerCommand implements Command {
         try {
             return (Message) objIn.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
+            return new Message("Error reading message", Code.BAD);
         }
     }
 
-    protected Message sendAndReceive(final Message message) {
-        sendMessage(message);
-        return readMessage();
-    }
 }

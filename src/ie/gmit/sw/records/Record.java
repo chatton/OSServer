@@ -4,7 +4,6 @@ import ie.gmit.sw.databases.DatabaseItem;
 
 public abstract class Record implements DatabaseItem {
 
-    private static int numRecords = 0;
     private final int id;
     private final int userId;
     private final RecordType type;
@@ -13,10 +12,6 @@ public abstract class Record implements DatabaseItem {
         this.id = id;
         this.type = type;
         this.userId = userId;
-    }
-
-    public Record(int userId, RecordType recordType) {
-        this(numRecords++, userId, recordType);
     }
 
     public int getUserId() {
