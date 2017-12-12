@@ -1,6 +1,7 @@
 package ie.gmit.sw.server;
 
 import ie.gmit.sw.databases.Database;
+import ie.gmit.sw.logging.Log;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -17,6 +18,7 @@ public class Server {
     private volatile boolean running = true;
 
     public Server(final int port, final Database db) {
+        Log.info("Creating server instance.");
         this.port = port;
         this.db = db;
         executor = Executors.newCachedThreadPool();
@@ -30,13 +32,13 @@ public class Server {
         ss = new ServerSocket(port);
 
         while (running) {
-            System.out.println("Listening for connection.");
+            Log.info("Listening for connection.");
             final Socket socket = ss.accept();
-            System.out.println("Connection received!");
+            Log.info("Connection received.");
             executor.submit(new HandleUser(socket, db));
         }
 
-        System.out.println("Terminating...");
+        Log.info("Server shutting down.");
         executor.shutdown();
     }
 

@@ -1,6 +1,7 @@
 package ie.gmit.sw.command.basecommands;
 
 import ie.gmit.sw.command.Command;
+import ie.gmit.sw.logging.Log;
 import ie.gmit.sw.serialize.Code;
 import ie.gmit.sw.server.Client;
 import ie.gmit.sw.serialize.Message;
@@ -36,6 +37,7 @@ public abstract class ServerCommand implements Command {
         try {
             objOut.writeObject(message);
             objOut.flush();
+            Log.debug("Sending message: " + message);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -43,8 +45,11 @@ public abstract class ServerCommand implements Command {
 
     protected Message readMessage() {
         try {
-            return (Message) objIn.readObject();
+            Message msg = (Message) objIn.readObject();
+            Log.info("Reading message: " + msg);
+            return msg;
         } catch (IOException | ClassNotFoundException e) {
+            Log.error("Error reading message. Error: " + e.getMessage());
             return new Message("Error reading message", Code.BAD);
         }
     }

@@ -1,6 +1,7 @@
 package ie.gmit.sw.server;
 
 import ie.gmit.sw.command.CommandFactory;
+import ie.gmit.sw.logging.Log;
 import ie.gmit.sw.serialize.Message;
 import ie.gmit.sw.command.Command;
 import ie.gmit.sw.databases.Database;
@@ -26,9 +27,12 @@ public class HandleUser implements Runnable {
 
     private Message readMessage() {
         try {
-            return (Message) objIn.readObject();
+            Message msg = (Message) objIn.readObject();
+            Log.info("Reading message: " + msg);
+            return msg;
         } catch (IOException | ClassNotFoundException e) {
             // return an "Exit" message instead of null
+            Log.warning("Unable to read message from user - Most likely user killed client application.");
             return new Message("Error reading out, disconnecting.", EXIT);
         }
     }
@@ -40,13 +44,13 @@ public class HandleUser implements Runnable {
         while (true) { // stay active until user sends EXIT signal or kills the program.
             final Message choice = readMessage();
             if (choice.code() == EXIT) { // socket disconnected or user wants to quit.
-                System.out.println("User disconnected.");
+                Log.info("User disconnected.");
                 closeStreams();
                 return;
             }
             // based on the code sent, create the relevant command.
             final Command cmd = factory.makeCommand(choice.code());
-            assert cmd != null;
+            Log.debug("Executing: [" + cmd.getClass().getSimpleName() + "]");
             cmd.execute();
         }
     }
@@ -56,6 +60,7 @@ public class HandleUser implements Runnable {
             objIn.close();
             objOut.close();
         } catch (IOException e) {
+            Log.warning("Error closing streams. Message:" + e.getMessage());
             e.printStackTrace();
         }
     }

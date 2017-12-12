@@ -140,7 +140,7 @@ public class Database {
     In order to save a record, The file is created if it doesn't already exist.
     Then a line is appended to the file which represents the new Record to be added.
      */
-    private void saveRecord(Record record) throws IOException {
+    private boolean saveRecord(Record record) throws IOException {
         synchronized (this) {
             final File recordFile = new File("data/user_records/" + record.getUserId());
 
@@ -156,6 +156,7 @@ public class Database {
             try (FileWriter fw = new FileWriter(recordFile, true);
                  BufferedWriter bw = new BufferedWriter(fw)) {
                 bw.write(record.toDatabaseFormat() + System.lineSeparator());
+                return true;
             }
         }
     }
@@ -222,7 +223,7 @@ public class Database {
         add(user, usersPath);
     }
 
-    public void addRecord(Record record) throws IOException {
-        saveRecord(record);
+    public boolean addRecord(Record record) throws IOException {
+        return saveRecord(record);
     }
 }

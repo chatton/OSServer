@@ -2,6 +2,7 @@ package ie.gmit.sw.command.impl;
 
 import ie.gmit.sw.command.basecommands.DatabaseCommand;
 import ie.gmit.sw.databases.Database;
+import ie.gmit.sw.logging.Log;
 import ie.gmit.sw.serialize.Code;
 import ie.gmit.sw.serialize.Message;
 import ie.gmit.sw.server.Client;
@@ -19,7 +20,7 @@ public class DeleteRecordCommand extends DatabaseCommand {
     @Override
     public void execute() {
         if (!client.loggedIn()) {
-            System.out.println("Client was not logged in. Sending FORBIDDEN.");
+            Log.warning("Client was not logged in and tried to delete record.");
             sendMessage(new Message("You must be logged in to delete a record.", Code.FORBIDDEN));
             return; // don't continue with adding the record.
         }
@@ -28,16 +29,23 @@ public class DeleteRecordCommand extends DatabaseCommand {
         final Message msg = readMessage();
         final String id = msg.message();
 
+        boolean deleted;
         try {
-            db.deleteRecord(client.id(), Integer.parseInt(id));
+            deleted = db.deleteRecord(client.id(), Integer.parseInt(id));
         } catch (NumberFormatException e) {
-            System.out.println("Invalid ID entered.");
+            Log.warning("Invalid ID entered.");
             sendMessage(new Message("Invalid ID entered.", Code.BAD));
             return;
         } catch (IOException e) {
+            Log.error("Failed writing to database.");
             sendMessage(new Message("Error deleting record.", Code.BAD));
             return;
         }
-        sendMessage(new Message("Deleted record successfully", Code.OK));
+
+        if (deleted) {
+            sendMessage(new Message("Deleted record successfully", Code.OK));
+        } else {
+            sendMessage(new Message("Deleting record failed.", Code.BAD));
+        }
     }
 }

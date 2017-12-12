@@ -2,6 +2,7 @@ package ie.gmit.sw.command.impl;
 
 import ie.gmit.sw.command.basecommands.DatabaseCommand;
 import ie.gmit.sw.databases.Database;
+import ie.gmit.sw.logging.Log;
 import ie.gmit.sw.records.FitnessRecord;
 import ie.gmit.sw.serialize.Code;
 import ie.gmit.sw.serialize.Message;
@@ -21,7 +22,7 @@ public class AddFitnessRecordCommand extends DatabaseCommand {
     public void execute() {
 
         if (!client.loggedIn()) {
-            System.out.println("Client was not logged in. Sending FORBIDDEN.");
+            Log.warning("Client was not logged in and attempted to add a new Fitness Record");
             sendMessage(new Message("You must be logged in to add a new fitness record.", Code.FORBIDDEN));
             return; // don't continue with adding the record.
         }
@@ -29,24 +30,27 @@ public class AddFitnessRecordCommand extends DatabaseCommand {
         sendText("Enter Mode: ");
         Message msg = readMessage();
         String mode = msg.message();
-        System.out.println("Mode: " + mode);
-
+        Log.info("Entered Mode: " + mode);
         sendText("Enter Duration: ");
 
         try {
             msg = readMessage();
             final double duration = Double.parseDouble(msg.message());
-            System.out.println("Duration: " + duration);
-            db.addRecord(new FitnessRecord(db.getNextRecordId(client.id()), client.id(), mode, duration));
-            System.out.println("Added record.");
-            sendMessage(new Message("Added record.", Code.OK));
+            Log.info("Entered Duration: " + duration);
+            boolean added = db.addRecord(new FitnessRecord(db.getNextRecordId(client.id()), client.id(), mode, duration));
+            if(added){
+                Log.info("Added record successfully.");
+                sendMessage(new Message("Added record.", Code.OK));
+            } else {
+//                Log.info("Adding record failed.");
+//                sendMessage(new Message("Added record.", Code.OK));
+            }
         } catch (NumberFormatException e) {
-            System.out.println("Invalid duration.");
+            Log.warning("Invalid duration provided.");
             sendMessage(new Message("Invalid duration provided.", Code.BAD));
         } catch (IOException e) {
-            System.out.println("Failed to add record.");
+            Log.error("Failed to add record.");
             sendMessage(new Message("Failed adding record.", Code.BAD));
         }
-
     }
 }

@@ -26,4 +26,9 @@ public class Message implements Serializable {
     public boolean ok() {
         return code == OK;
     }
+
+    @Override
+    public String toString() {
+        return "Message: [" + message + "] - Code: [" + code.toString() + "]";
+    }
 }
