@@ -9,7 +9,7 @@ import java.io.IOException;
 public class ServerRunner {
     public static void main(String[] args) throws IOException {
         if (args.length > 0) {
-            final String debug = args[1];
+            final String debug = args[0];
             if (debug.equalsIgnoreCase("true")) {
                 Log.toggleDebugMode();
             }

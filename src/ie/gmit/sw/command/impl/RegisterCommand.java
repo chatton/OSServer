@@ -1,6 +1,7 @@
 package ie.gmit.sw.command.impl;
 
 import ie.gmit.sw.command.basecommands.DatabaseCommand;
+import ie.gmit.sw.logging.Log;
 import ie.gmit.sw.serialize.Code;
 import ie.gmit.sw.serialize.Message;
 import ie.gmit.sw.server.Client;
@@ -21,6 +22,7 @@ public class RegisterCommand extends DatabaseCommand {
         try {
             return db.nameAvailable(name);
         } catch (IOException e) {
+            Log.error("Error reading from database. ERROR: " + e);
             return false;
         }
     }
@@ -54,10 +56,11 @@ public class RegisterCommand extends DatabaseCommand {
 
     @Override
     public void execute() {
+        Log.info("Registration attempt.");
         sendText("Enter user name: ");
         Message userNameMessage = readMessage();
         String userName = userNameMessage.message();
-        System.out.println("Username: " + userName);
+        Log.info("Username: " + userName);
         boolean keepGoing = replyToUser(nameOk(userNameMessage.message()), "User name accepted.", "Bad user name.");
 
         if (!keepGoing) {
@@ -66,18 +69,27 @@ public class RegisterCommand extends DatabaseCommand {
 
         sendText("Enter your password: ");
         Message passwordMessage = readMessage();
-        int passHash = passwordMessage.message().hashCode();
-        System.out.println("Password: " + passwordMessage.message());
+        final int passHash = passwordMessage.message().hashCode();
+        Log.info("Password: " + passwordMessage.message());
         keepGoing = replyToUser(passwordOk(passwordMessage.message()), "Password okay.", "Password invalid.");
 
         if (!keepGoing) {
             return;
         }
 
+        sendText("Enter address: ");
+        Message addressMessage = readMessage();
+        final String address = addressMessage.message();
+        Log.info("Address: " + address);
+        keepGoing = replyToUser(true, "Address Okay.", "Bad address");
+        if (!keepGoing) {
+            return;
+        }
+
         sendText("Enter ppsn: ");
-        Message ppsnMessage = readMessage();
-        String ppsn = ppsnMessage.message();
-        System.out.println("PPSN: " + ppsn);
+        final Message ppsnMessage = readMessage();
+        final String ppsn = ppsnMessage.message();
+        Log.info("PPSN: " + ppsn);
         keepGoing = replyToUser(ppsnOk(ppsnMessage.message()), "PPSN Okay.", "PPSN invalid.");
 
         if (!keepGoing) {
@@ -86,7 +98,7 @@ public class RegisterCommand extends DatabaseCommand {
 
         sendText("Enter height: ");
         Message heightMessage = readMessage();
-        System.out.println("Height: " + heightMessage.message());
+        Log.info("Height: " + heightMessage.message());
         keepGoing = replyToUser(doubleOkay(heightMessage.message()), "Height Okay.", "Height invalid.");
 
         if (!keepGoing) {
@@ -98,7 +110,7 @@ public class RegisterCommand extends DatabaseCommand {
 
         sendText("Enter weight: ");
         Message weightMessage = readMessage();
-        System.out.println("Weight: " + weightMessage.message());
+        Log.info("Weight: " + weightMessage.message());
         keepGoing = replyToUser(doubleOkay(weightMessage.message()), "Weight Okay.", "Weight invalid.");
 
         if (!keepGoing) {
@@ -109,7 +121,7 @@ public class RegisterCommand extends DatabaseCommand {
 
         sendText("Enter age: ");
         Message ageMessage = readMessage();
-        System.out.println("Age: " + ageMessage.message());
+        Log.info("Age: " + ageMessage.message());
         keepGoing = replyToUser(doubleOkay(ageMessage.message()), "Age Okay.", "Age invalid.");
 
         if (!keepGoing) {
@@ -117,17 +129,15 @@ public class RegisterCommand extends DatabaseCommand {
         }
 
         int age = Integer.parseInt(ageMessage.message());
-
-        final User user = new User(userName, passHash, ppsn, height, weight, age);
-//        System.out.println(user);
+        final User user = new User(userName, address, passHash, ppsn, height, weight, age);
 
         try {
-            System.out.println("Adding user: " + user);
+            Log.info("Adding user: " + user);
             db.addUser(user);
-            System.out.println("Successfully added user.");
+            Log.info("Successfully added user.");
             sendCode(Code.OK);
         } catch (IOException e) {
-            System.out.println("Error adding user.");
+            Log.error("Error adding user: " + user + " ERROR: " + e);
             sendCode(Code.BAD);
         }
     }

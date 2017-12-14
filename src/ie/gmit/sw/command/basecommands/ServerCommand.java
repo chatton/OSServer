@@ -39,14 +39,14 @@ public abstract class ServerCommand implements Command {
             objOut.flush();
             Log.debug("Sending message: " + message);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.warning("Was unable to send message. " + e);
         }
     }
 
     protected Message readMessage() {
         try {
             Message msg = (Message) objIn.readObject();
-            Log.info("Reading message: " + msg);
+            Log.debug("Reading message: " + msg);
             return msg;
         } catch (IOException | ClassNotFoundException e) {
             Log.error("Error reading message. Error: " + e.getMessage());

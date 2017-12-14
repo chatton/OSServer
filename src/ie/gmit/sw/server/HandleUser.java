@@ -28,7 +28,7 @@ public class HandleUser implements Runnable {
     private Message readMessage() {
         try {
             Message msg = (Message) objIn.readObject();
-            Log.info("Reading message: " + msg);
+            Log.debug("Reading message: " + msg);
             return msg;
         } catch (IOException | ClassNotFoundException e) {
             // return an "Exit" message instead of null

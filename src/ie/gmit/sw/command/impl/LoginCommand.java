@@ -1,6 +1,7 @@
 package ie.gmit.sw.command.impl;
 
 import ie.gmit.sw.command.basecommands.DatabaseCommand;
+import ie.gmit.sw.logging.Log;
 import ie.gmit.sw.serialize.Code;
 import ie.gmit.sw.serialize.Message;
 import ie.gmit.sw.server.Client;
@@ -25,19 +26,21 @@ public class LoginCommand extends DatabaseCommand {
         try {
             return Collections.unmodifiableList(db.getUsers());
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.error("Error reading users from database. ERROR: " + e);
             return new ArrayList<>();
         }
     }
 
     @Override
     public void execute() {
+        Log.info("Login attempt beginning");
+
         sendText("Enter Username: ");
-        String userName = readMessage().message();
-        System.out.println("User name: " + userName);
+        final String userName = readMessage().message();
+        Log.info("User name: " + userName);
         sendText("Enter password: ");
-        String password = readMessage().message();
-        System.out.println("Password: " + password);
+        final String password = readMessage().message();
+        Log.info("Password: " + password);
 
         final List<User> users = getUsers();
 
@@ -48,11 +51,12 @@ public class LoginCommand extends DatabaseCommand {
 
         if (userExists) {
             sendMessage(new Message("Successfully logged in!", Code.OK));
-            System.out.println("Client logged in with valid credentials!");
+            Log.info("Client logged in with valid credentials.");
             client.login(userName.hashCode()); // update state of Client object to logged in.
             return;
         }
 
+        Log.warning(String.format("Username: [%s] and Password: [%s] Did not match any users.", userName, password));
         sendMessage(new Message("Username and password don't match any existing user.", Code.BAD));
     }
 }

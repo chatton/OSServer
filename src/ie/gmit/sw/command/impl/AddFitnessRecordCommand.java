@@ -38,12 +38,12 @@ public class AddFitnessRecordCommand extends DatabaseCommand {
             final double duration = Double.parseDouble(msg.message());
             Log.info("Entered Duration: " + duration);
             boolean added = db.addRecord(new FitnessRecord(db.getNextRecordId(client.id()), client.id(), mode, duration));
-            if(added){
+            if (added) {
                 Log.info("Added record successfully.");
                 sendMessage(new Message("Added record.", Code.OK));
             } else {
-//                Log.info("Adding record failed.");
-//                sendMessage(new Message("Added record.", Code.OK));
+                Log.info("Adding record failed.");
+                sendMessage(new Message("Failed to add record.", Code.BAD));
             }
         } catch (NumberFormatException e) {
             Log.warning("Invalid duration provided.");

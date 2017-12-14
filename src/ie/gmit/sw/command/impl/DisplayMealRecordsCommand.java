@@ -2,6 +2,7 @@ package ie.gmit.sw.command.impl;
 
 import ie.gmit.sw.command.basecommands.DatabaseCommand;
 import ie.gmit.sw.databases.Database;
+import ie.gmit.sw.logging.Log;
 import ie.gmit.sw.records.MealRecord;
 import ie.gmit.sw.serialize.Code;
 import ie.gmit.sw.serialize.Message;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DisplayMealRecordsCommand extends DatabaseCommand {
 
@@ -20,9 +22,10 @@ public class DisplayMealRecordsCommand extends DatabaseCommand {
 
     @Override
     public void execute() {
+        Log.info("Display Meal Records attempt.");
 
         if (!client.loggedIn()) {
-            System.out.println("Client was not logged in. Sending FORBIDDEN.");
+            Log.warning("User attempted to display meal records but was not logged in.");
             sendMessage(new Message("You must be logged in to view records.", Code.FORBIDDEN));
             return; // don't continue with displaying the records.
         }
@@ -31,17 +34,24 @@ public class DisplayMealRecordsCommand extends DatabaseCommand {
         try {
             records = db.getMealRecords(client.id());
         } catch (IOException e) {
+            Log.error("Error connecting to database. ERROR: " + e);
             sendMessage(new Message("Error connecting to Database.", Code.BAD));
-            e.printStackTrace();
             return;
         }
 
-        final StringBuilder sb = new StringBuilder();
-        records.forEach(record ->
-                sb.append(String.format("Record Id: %s - Type: %s - Description %s",
-                        record.getId(), record.getMealType(), record.getDesc()))
-                        .append(System.lineSeparator()));
+        final String messageString = records.stream()
+                .map(this::format)
+                .collect(Collectors.joining(System.lineSeparator()));
 
-        sendMessage(new Message(sb.toString(), Code.OK));
+        sendMessage(new Message(messageString, Code.OK));
+    }
+
+    /*
+    format a record into a human readable format in order to send it
+    back over the socket and be read by the user.
+     */
+    private String format(MealRecord record) {
+        return String.format("Record Id: %s - Type: %s - Description %s",
+                record.getId(), record.getMealType(), record.getDesc());
     }
 }

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DisplayFitnessRecordsCommand extends DatabaseCommand {
 
@@ -35,12 +36,15 @@ public class DisplayFitnessRecordsCommand extends DatabaseCommand {
             return;
         }
 
-        final StringBuilder sb = new StringBuilder();
-        records.forEach(record ->
-                sb.append(String.format("Record Id: %s - Mode: %s - Duration %.2f",
-                        record.getId(), record.getMode(), record.getDuration()))
-                        .append(System.lineSeparator()));
+        final String messageString = records.stream()
+                .map(this::format)
+                .collect(Collectors.joining(System.lineSeparator()));
 
-        sendMessage(new Message(sb.toString(), Code.OK));
+        sendMessage(new Message(messageString, Code.OK));
+    }
+
+    private String format(FitnessRecord record) {
+        return String.format("Record Id: %s - Mode: %s - Duration %.2f",
+                record.getId(), record.getMode(), record.getDuration());
     }
 }
