@@ -207,7 +207,7 @@ public class Database {
     Generates a unique to that user ID.
     */
     @SuppressWarnings("all")
-    public int getNextRecordId(int userId) throws IOException {
+    private int getNextRecordId(int userId) throws IOException {
         final List<Record> records = getRecordsForUser(userId); // get the users existing records.
         // Get their ids as a set
         final Set<Integer> ids = records.stream().map(Record::getId).collect(Collectors.toSet());
@@ -224,6 +224,7 @@ public class Database {
     }
 
     public boolean addRecord(Record record) throws IOException {
+        record.setId(getNextRecordId(record.getUserId()));
         return saveRecord(record);
     }
 }

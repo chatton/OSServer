@@ -38,7 +38,7 @@ public class AddMealRecordCommand extends DatabaseCommand {
         Log.info("Description: " + desc);
 
         try {
-            db.addRecord(new MealRecord(db.getNextRecordId(client.id()), client.id(), meal, desc));
+            db.addRecord(new MealRecord(-1, client.id(), meal, desc));
             Log.info("Added record.");
             sendMessage("Added record.", Code.OK);
         } catch (IOException e) {

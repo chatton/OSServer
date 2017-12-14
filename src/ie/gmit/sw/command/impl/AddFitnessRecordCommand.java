@@ -20,7 +20,6 @@ public class AddFitnessRecordCommand extends DatabaseCommand {
 
     @Override
     public void execute() {
-
         if (!client.loggedIn()) {
             Log.warning("Client was not logged in and attempted to add a new Fitness Record");
             sendMessage("You must be logged in to add a new fitness record.", Code.FORBIDDEN);
@@ -29,7 +28,7 @@ public class AddFitnessRecordCommand extends DatabaseCommand {
 
         sendMessage("Enter Mode: ");
         Message msg = readMessage();
-        String mode = msg.message();
+        final String mode = msg.message();
         Log.info("Entered Mode: " + mode);
         sendMessage("Enter Duration: ");
 
@@ -37,7 +36,7 @@ public class AddFitnessRecordCommand extends DatabaseCommand {
             msg = readMessage();
             final double duration = Double.parseDouble(msg.message());
             Log.info("Entered Duration: " + duration);
-            final boolean added = db.addRecord(new FitnessRecord(db.getNextRecordId(client.id()), client.id(), mode, duration));
+            final boolean added = db.addRecord(new FitnessRecord(-1, client.id(), mode, duration));
             if (added) {
                 Log.info("Added record successfully.");
                 sendMessage("Added record.", Code.OK);
@@ -49,7 +48,7 @@ public class AddFitnessRecordCommand extends DatabaseCommand {
             Log.warning("Invalid duration provided.");
             sendMessage("Invalid duration provided.", Code.BAD);
         } catch (IOException e) {
-            Log.error("Failed to add record.");
+            Log.error("Failed to add record. ERROR: " + e);
             sendMessage("Failed adding record.", Code.BAD);
         }
     }
