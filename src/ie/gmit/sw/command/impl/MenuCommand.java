@@ -28,6 +28,6 @@ public class MenuCommand extends ServerCommand {
         sb.append("7. - Delete a record.").append(System.lineSeparator());
         sb.append("8. - Exit.").append(System.lineSeparator());
         sb.append("==============================================").append(System.lineSeparator());
-        sendMessage(new Message(sb.toString(), OK));
+        sendMessage(sb.toString(), OK);
     }
 }

@@ -57,7 +57,7 @@ public class RegisterCommand extends DatabaseCommand {
     @Override
     public void execute() {
         Log.info("Registration attempt.");
-        sendText("Enter user name: ");
+        sendMessage("Enter user name: ");
         Message userNameMessage = readMessage();
         String userName = userNameMessage.message();
         Log.info("Username: " + userName);
@@ -67,7 +67,7 @@ public class RegisterCommand extends DatabaseCommand {
             return;
         }
 
-        sendText("Enter your password: ");
+        sendMessage("Enter your password: ");
         Message passwordMessage = readMessage();
         final int passHash = passwordMessage.message().hashCode();
         Log.info("Password: " + passwordMessage.message());
@@ -77,7 +77,7 @@ public class RegisterCommand extends DatabaseCommand {
             return;
         }
 
-        sendText("Enter address: ");
+        sendMessage("Enter address: ");
         Message addressMessage = readMessage();
         final String address = addressMessage.message();
         Log.info("Address: " + address);
@@ -86,7 +86,7 @@ public class RegisterCommand extends DatabaseCommand {
             return;
         }
 
-        sendText("Enter ppsn: ");
+        sendMessage("Enter ppsn: ");
         final Message ppsnMessage = readMessage();
         final String ppsn = ppsnMessage.message();
         Log.info("PPSN: " + ppsn);
@@ -96,7 +96,7 @@ public class RegisterCommand extends DatabaseCommand {
             return;
         }
 
-        sendText("Enter height: ");
+        sendMessage("Enter height: ");
         Message heightMessage = readMessage();
         Log.info("Height: " + heightMessage.message());
         keepGoing = replyToUser(doubleOkay(heightMessage.message()), "Height Okay.", "Height invalid.");
@@ -108,7 +108,7 @@ public class RegisterCommand extends DatabaseCommand {
         double height = Double.parseDouble(heightMessage.message());
 
 
-        sendText("Enter weight: ");
+        sendMessage("Enter weight: ");
         Message weightMessage = readMessage();
         Log.info("Weight: " + weightMessage.message());
         keepGoing = replyToUser(doubleOkay(weightMessage.message()), "Weight Okay.", "Weight invalid.");
@@ -119,7 +119,7 @@ public class RegisterCommand extends DatabaseCommand {
 
         double weight = Double.parseDouble(weightMessage.message());
 
-        sendText("Enter age: ");
+        sendMessage("Enter age: ");
         Message ageMessage = readMessage();
         Log.info("Age: " + ageMessage.message());
         keepGoing = replyToUser(doubleOkay(ageMessage.message()), "Age Okay.", "Age invalid.");

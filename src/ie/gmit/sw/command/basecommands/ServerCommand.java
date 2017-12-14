@@ -25,12 +25,17 @@ public abstract class ServerCommand implements Command {
         this.client = client;
     }
 
-    protected void sendText(String text) {
-        sendMessage(new Message(text, Code.MESSAGE));
-    }
 
     protected void sendCode(Code code) {
-        sendMessage(new Message("", code));
+        sendMessage("", code);
+    }
+
+    protected void sendMessage(String text){
+        sendMessage(text, Code.MESSAGE);
+    }
+
+    protected void sendMessage(String text, Code code) {
+        sendMessage(new Message(text, code));
     }
 
     protected void sendMessage(Message message) {

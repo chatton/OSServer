@@ -25,7 +25,7 @@ public class DeleteRecordCommand extends DatabaseCommand {
             return; // don't continue with adding the record.
         }
 
-        sendText("Enter Record ID to delete:");
+        sendMessage("Enter Record ID to delete:");
         final Message msg = readMessage();
         final String id = msg.message();
 
@@ -34,18 +34,20 @@ public class DeleteRecordCommand extends DatabaseCommand {
             deleted = db.deleteRecord(client.id(), Integer.parseInt(id));
         } catch (NumberFormatException e) {
             Log.warning("Invalid ID entered.");
-            sendMessage(new Message("Invalid ID entered.", Code.BAD));
+            sendMessage("Invalid ID entered.", Code.BAD);
             return;
         } catch (IOException e) {
             Log.error("Failed writing to database.");
-            sendMessage(new Message("Error deleting record.", Code.BAD));
+            sendMessage("Error deleting record.", Code.BAD);
             return;
         }
 
         if (deleted) {
-            sendMessage(new Message("Deleted record successfully", Code.OK));
+            Log.info("Successfully deleted record.");
+            sendMessage("Deleted record successfully", Code.OK);
         } else {
-            sendMessage(new Message("Deleting record failed.", Code.BAD));
+            Log.error("Deleting of record failed.");
+            sendMessage("Deleting record failed.", Code.BAD);
         }
     }
 }

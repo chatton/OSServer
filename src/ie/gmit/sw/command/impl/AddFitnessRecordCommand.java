@@ -23,34 +23,34 @@ public class AddFitnessRecordCommand extends DatabaseCommand {
 
         if (!client.loggedIn()) {
             Log.warning("Client was not logged in and attempted to add a new Fitness Record");
-            sendMessage(new Message("You must be logged in to add a new fitness record.", Code.FORBIDDEN));
+            sendMessage("You must be logged in to add a new fitness record.", Code.FORBIDDEN);
             return; // don't continue with adding the record.
         }
 
-        sendText("Enter Mode: ");
+        sendMessage("Enter Mode: ");
         Message msg = readMessage();
         String mode = msg.message();
         Log.info("Entered Mode: " + mode);
-        sendText("Enter Duration: ");
+        sendMessage("Enter Duration: ");
 
         try {
             msg = readMessage();
             final double duration = Double.parseDouble(msg.message());
             Log.info("Entered Duration: " + duration);
-            boolean added = db.addRecord(new FitnessRecord(db.getNextRecordId(client.id()), client.id(), mode, duration));
+            final boolean added = db.addRecord(new FitnessRecord(db.getNextRecordId(client.id()), client.id(), mode, duration));
             if (added) {
                 Log.info("Added record successfully.");
-                sendMessage(new Message("Added record.", Code.OK));
+                sendMessage("Added record.", Code.OK);
             } else {
                 Log.info("Adding record failed.");
-                sendMessage(new Message("Failed to add record.", Code.BAD));
+                sendMessage("Failed to add record.", Code.BAD);
             }
         } catch (NumberFormatException e) {
             Log.warning("Invalid duration provided.");
-            sendMessage(new Message("Invalid duration provided.", Code.BAD));
+            sendMessage("Invalid duration provided.", Code.BAD);
         } catch (IOException e) {
             Log.error("Failed to add record.");
-            sendMessage(new Message("Failed adding record.", Code.BAD));
+            sendMessage("Failed adding record.", Code.BAD);
         }
     }
 }

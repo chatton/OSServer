@@ -21,29 +21,29 @@ public class AddMealRecordCommand extends DatabaseCommand {
     @Override
     public void execute() {
         if (!client.loggedIn()) {
-            Log.warning("User tried to add a new meal record but was not logged in.");
-            sendMessage(new Message("You must be logged in to add a new meal record.", Code.FORBIDDEN));
+            Log.warning("Client was not logged in and attempted to add a new Meal Record");
+            sendMessage("You must be logged in to add a new meal record.", Code.FORBIDDEN);
             return; // don't continue with adding the record.
         }
 
 
-        sendText("Enter type of meal: ");
+        sendMessage("Enter type of meal: ");
         Message msg = readMessage();
-        String meal = msg.message();
+        final String meal = msg.message();
         Log.info("Meal Type: " + meal);
 
-        sendText("Enter Description: ");
+        sendMessage("Enter Description: ");
         msg = readMessage();
-        String desc = msg.message();
+        final String desc = msg.message();
         Log.info("Description: " + desc);
 
         try {
             db.addRecord(new MealRecord(db.getNextRecordId(client.id()), client.id(), meal, desc));
             Log.info("Added record.");
-            sendMessage(new Message("Added record.", Code.OK));
+            sendMessage("Added record.", Code.OK);
         } catch (IOException e) {
             Log.error("Failed to add record. ERROR: " + e);
-            sendMessage(new Message("Failed adding record.", Code.BAD));
+            sendMessage("Failed adding record.", Code.BAD);
         }
     }
 }

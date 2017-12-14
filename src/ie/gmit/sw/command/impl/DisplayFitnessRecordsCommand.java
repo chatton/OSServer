@@ -2,6 +2,7 @@ package ie.gmit.sw.command.impl;
 
 import ie.gmit.sw.command.basecommands.DatabaseCommand;
 import ie.gmit.sw.databases.Database;
+import ie.gmit.sw.logging.Log;
 import ie.gmit.sw.records.FitnessRecord;
 import ie.gmit.sw.serialize.Code;
 import ie.gmit.sw.serialize.Message;
@@ -22,25 +23,24 @@ public class DisplayFitnessRecordsCommand extends DatabaseCommand {
     @Override
     public void execute() {
         if (!client.loggedIn()) {
-            System.out.println("Client was not logged in. Sending FORBIDDEN.");
-            sendMessage(new Message("You must be logged in to view records.", Code.FORBIDDEN));
+            Log.warning("Client was not logged in and attempted to display Fitness Records");
+            sendMessage("You must be logged in to view records.", Code.FORBIDDEN);
             return; // don't continue with displaying the records.
         }
 
-        List<FitnessRecord> records;
         try {
-            records = db.getFitnessRecords(client.id());
+            final String messageString = db.getFitnessRecords(client.id())
+                    .stream() // look at relevant records
+                    .map(this::format) // make them human readable
+                    .collect(Collectors.joining(System.lineSeparator()));// new line separated
+
+            sendMessage(messageString, Code.OK);
         } catch (IOException e) {
-            sendMessage(new Message("Error connecting to Database.", Code.BAD));
-            e.printStackTrace();
-            return;
+            Log.error("Error connecting to database. ERROR: " + e);
+            sendMessage("Error connecting to Database.", Code.BAD);
         }
 
-        final String messageString = records.stream()
-                .map(this::format)
-                .collect(Collectors.joining(System.lineSeparator()));
 
-        sendMessage(new Message(messageString, Code.OK));
     }
 
     private String format(FitnessRecord record) {

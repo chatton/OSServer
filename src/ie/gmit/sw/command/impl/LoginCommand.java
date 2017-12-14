@@ -35,10 +35,10 @@ public class LoginCommand extends DatabaseCommand {
     public void execute() {
         Log.info("Login attempt beginning");
 
-        sendText("Enter Username: ");
+        sendMessage("Enter Username: ");
         final String userName = readMessage().message();
         Log.info("User name: " + userName);
-        sendText("Enter password: ");
+        sendMessage("Enter password: ");
         final String password = readMessage().message();
         Log.info("Password: " + password);
 
@@ -50,13 +50,13 @@ public class LoginCommand extends DatabaseCommand {
                 .count() > 0; // should be exactly 1 user with this user/pass combination.
 
         if (userExists) {
-            sendMessage(new Message("Successfully logged in!", Code.OK));
+            sendMessage("Successfully logged in!", Code.OK);
             Log.info("Client logged in with valid credentials.");
             client.login(userName.hashCode()); // update state of Client object to logged in.
             return;
         }
 
         Log.warning(String.format("Username: [%s] and Password: [%s] Did not match any users.", userName, password));
-        sendMessage(new Message("Username and password don't match any existing user.", Code.BAD));
+        sendMessage("Username and password don't match any existing user.", Code.BAD);
     }
 }

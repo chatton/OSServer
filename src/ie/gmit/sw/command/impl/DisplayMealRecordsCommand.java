@@ -26,24 +26,21 @@ public class DisplayMealRecordsCommand extends DatabaseCommand {
 
         if (!client.loggedIn()) {
             Log.warning("User attempted to display meal records but was not logged in.");
-            sendMessage(new Message("You must be logged in to view records.", Code.FORBIDDEN));
+            sendMessage("You must be logged in to view records.", Code.FORBIDDEN);
             return; // don't continue with displaying the records.
         }
 
-        List<MealRecord> records;
         try {
-            records = db.getMealRecords(client.id());
+            final String messageString = db.getMealRecords(client.id())
+                    .stream() // looking at each record for that client
+                    .map(this::format) // make it human readable
+                    .collect(Collectors.joining(System.lineSeparator())); // join on new line
+
+            sendMessage(messageString, Code.OK);
         } catch (IOException e) {
             Log.error("Error connecting to database. ERROR: " + e);
-            sendMessage(new Message("Error connecting to Database.", Code.BAD));
-            return;
+            sendMessage("Error connecting to Database.", Code.BAD);
         }
-
-        final String messageString = records.stream()
-                .map(this::format)
-                .collect(Collectors.joining(System.lineSeparator()));
-
-        sendMessage(new Message(messageString, Code.OK));
     }
 
     /*
