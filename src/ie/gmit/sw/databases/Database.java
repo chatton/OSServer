@@ -30,13 +30,25 @@ public class Database {
     private final String recordsPath;
     private final String sep;
 
-    public Database(final String usersPath, final String recordsPath) {
+    public Database(final String usersPath, final String recordsPath) throws IOException {
         this.usersPath = usersPath;
         this.recordsPath = recordsPath;
         this.sep = ";";
+        createFileIfAbsent(usersPath);
+        createDirIfAbsent(recordsPath);
     }
 
-    public Database() {
+    private boolean createFileIfAbsent(String path) throws IOException {
+        final File file = new File(path);
+        return !file.exists() && file.createNewFile();
+    }
+
+    private boolean createDirIfAbsent(String path) throws IOException {
+        final File file = new File(path);
+        return !file.exists() && file.mkdir();
+    }
+
+    public Database() throws IOException {
         this("data/users.dat", "data/user_records/");
     }
 
