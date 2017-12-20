@@ -1,10 +1,12 @@
 package ie.gmit.sw.databases;
 
+import ie.gmit.sw.logging.Log;
 import ie.gmit.sw.server.User;
 import ie.gmit.sw.records.FitnessRecord;
 import ie.gmit.sw.records.MealRecord;
 import ie.gmit.sw.records.Record;
 import ie.gmit.sw.records.RecordType;
+import ie.gmit.sw.util.ListUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /*
@@ -38,14 +41,22 @@ public class Database {
         createDirIfAbsent(recordsPath);
     }
 
-    private boolean createFileIfAbsent(String path) throws IOException {
+    @SuppressWarnings("all")
+    private void createFileIfAbsent(String path) throws IOException {
         final File file = new File(path);
-        return !file.exists() && file.createNewFile();
+        if (!file.exists()) {
+            Log.info("Creating file [" + path + "]");
+            file.createNewFile();
+        }
     }
 
-    private boolean createDirIfAbsent(String path) throws IOException {
+    @SuppressWarnings("all")
+    private void createDirIfAbsent(String path) throws IOException {
         final File file = new File(path);
-        return !file.exists() && file.mkdir();
+        if (!file.exists()) {
+            Log.info("Creating directory [" + path + "]");
+            file.mkdir();
+        }
     }
 
     public Database() throws IOException {
@@ -57,7 +68,7 @@ public class Database {
      */
     private List<Record> getRecordsForUser(int userId) throws IOException {
         synchronized (this) {
-            final File recordFile = new File(recordsPath + userId);
+            final File recordFile = getUserRecordsFile(userId);
             if (recordFile.exists()) {
                 try (final Stream<String> lines = Files.lines(Paths.get(recordFile.getPath()))) {
                     return lines.map(line -> line.split(sep)) // create array of args for each line
@@ -108,7 +119,7 @@ public class Database {
     }
 
     public List<FitnessRecord> getFitnessRecords(int userId, int nLast) throws IOException {
-        return nLast(nLast, getFitnessRecordsForUser(userId));
+        return ListUtils.nLast(nLast, getFitnessRecordsForUser(userId));
     }
 
     public List<MealRecord> getMealRecords(int userId) throws IOException {
@@ -116,22 +127,8 @@ public class Database {
     }
 
     public List<MealRecord> getMealRecords(int userId, int nLast) throws IOException {
-        return nLast(nLast, getMealRecordsForUser(userId));
+        return ListUtils.nLast(nLast, getMealRecordsForUser(userId));
     }
-
-    /*
-    Provides a mechanism to get the N last records from any given list of records.
-    Used to provide a quick and easy way of getting the last 10, but could work for any value
-    of N.
-     */
-    private <T extends Record> List<T> nLast(int nLast, List<T> records) throws IOException {
-        int startingPos = records.size() - nLast;
-        startingPos = startingPos < 0 ? 0 : startingPos;
-        return records.stream()
-                .skip(startingPos) // skip all but the last n
-                .collect(Collectors.toList()); // return as a list.
-    }
-
 
     /*
     In order to delete a record, the records are read, one is removed from the list
@@ -140,12 +137,26 @@ public class Database {
     @SuppressWarnings("all")
     private void overwriteRecords(List<Record> records, int userId) throws IOException {
         synchronized (this) {
-            final File recordFile = new File("data/user_records/" + userId);
+            final File recordFile = getUserFile(userId);
             recordFile.delete(); // method call for side effect, not using return value.
-            for (final Record record : records) { // save all but the deleted record.
+            for (final Record record : records) { // save records.
                 saveRecord(record);
             }
         }
+    }
+
+    /*
+    Gets the file corresponding to a given user id. May or may not exist.
+     */
+    private File getUserFile(int userId) {
+        return new File("data/user_records/" + userId + ".dat");
+    }
+
+    /*
+    Gets the file holding all the records of the user with the provided user id. May or may not exist.
+     */
+    private File getUserRecordsFile(int userId) {
+        return new File("data/user_records/" + userId + ".dat");
     }
 
     /*
@@ -154,11 +165,11 @@ public class Database {
      */
     private boolean saveRecord(Record record) throws IOException {
         synchronized (this) {
-            final File recordFile = new File("data/user_records/" + record.getUserId());
+            final File recordFile = getUserFile(record.getUserId());
 
             if (!recordFile.exists()) {
                 if (!recordFile.createNewFile()) {
-                    throw new IOException("Error creating file for user: " + record.getUserId());
+                    throw new IOException("Error creating file for user: " + record.getUserId() + ".dat");
                 }
             }
 
@@ -209,6 +220,9 @@ public class Database {
         }
     }
 
+    /*
+    returns true or false for if the provided name is available.
+     */
     public boolean nameAvailable(String name) throws IOException {
         synchronized (this) {
             return getUsers().stream().noneMatch(user -> user.getUserName().equals(name));
@@ -221,14 +235,16 @@ public class Database {
     @SuppressWarnings("all")
     private int getNextRecordId(int userId) throws IOException {
         final List<Record> records = getRecordsForUser(userId); // get the users existing records.
+
         // Get their ids as a set
-        final Set<Integer> ids = records.stream().map(Record::getId).collect(Collectors.toSet());
-        for (int i = 0; i < records.size(); i++) {
-            if (!ids.contains(i)) {
-                return i; // return a unique id.
-            }
-        }
-        return records.size();
+        final Set<Integer> ids = records.stream()
+                .map(Record::getId)
+                .collect(Collectors.toSet());
+
+        return IntStream.iterate(0, i -> i + 1)
+                .filter(num -> !ids.contains(num)) // want an id that doesn't exist already
+                .findFirst() // first one will do
+                .orElse(records.size()); // otherwise just give back the total number of records which will be unique if we've reached it.
     }
 
     public void addUser(User user) throws IOException {

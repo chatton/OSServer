@@ -35,7 +35,7 @@ public class Server {
             Log.info("Listening for connection.");
             final Socket socket = ss.accept();
             Log.info("Connection received.");
-            executor.submit(new HandleUser(socket, db));
+            executor.submit(new UserHandler(socket, db));
         }
 
         Log.info("Server shutting down.");

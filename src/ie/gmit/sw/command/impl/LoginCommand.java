@@ -27,7 +27,7 @@ public class LoginCommand extends DatabaseCommand {
             return Collections.unmodifiableList(db.getUsers());
         } catch (IOException e) {
             Log.error("Error reading users from database. ERROR: " + e);
-            return new ArrayList<>();
+            return Collections.unmodifiableList(new ArrayList<>());
         }
     }
 
@@ -56,7 +56,7 @@ public class LoginCommand extends DatabaseCommand {
             return;
         }
 
-        Log.warning(String.format("Username: [%s] and Password: [%s] Did not match any users.", userName, password));
+        Log.warning(String.format("Username: [%s] and Password Hash: [%s] Did not match any users.", userName, password.hashCode()));
         sendMessage("Username and password don't match any existing user.", Code.BAD);
     }
 }

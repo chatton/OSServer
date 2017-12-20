@@ -13,13 +13,13 @@ import java.net.Socket;
 
 import static ie.gmit.sw.serialize.Code.EXIT;
 
-public class HandleUser implements Runnable {
+public class UserHandler implements Runnable {
 
     private final ObjectOutputStream objOut;
     private final ObjectInputStream objIn;
     private final Database db;
 
-    public HandleUser(final Socket socket, final Database db) throws IOException {
+    public UserHandler(final Socket socket, final Database db) throws IOException {
         objOut = new ObjectOutputStream(socket.getOutputStream());
         objIn = new ObjectInputStream(socket.getInputStream());
         this.db = db;

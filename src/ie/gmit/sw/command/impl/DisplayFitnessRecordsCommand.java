@@ -5,14 +5,11 @@ import ie.gmit.sw.databases.Database;
 import ie.gmit.sw.logging.Log;
 import ie.gmit.sw.records.FitnessRecord;
 import ie.gmit.sw.serialize.Code;
-import ie.gmit.sw.serialize.Message;
 import ie.gmit.sw.server.Client;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class DisplayFitnessRecordsCommand extends DatabaseCommand {
 
@@ -30,17 +27,16 @@ public class DisplayFitnessRecordsCommand extends DatabaseCommand {
 
         try {
             final String messageString = db.getFitnessRecords(client.id())
-                    .stream() // look at relevant records
-                    .map(this::format) // make them human readable
-                    .collect(Collectors.joining(System.lineSeparator()));// new line separated
+                    .stream() // looking at each record for that client
+                    .map(this::format) // make it human readable.
+                    .reduce((rec1, rec2) -> rec1 + System.lineSeparator() + rec2) // build up list of formatted descriptions
+                    .orElse("No records Available."); // if there aren't any, indicate no records
 
             sendMessage(messageString, Code.OK);
         } catch (IOException e) {
             Log.error("Error connecting to database. ERROR: " + e);
             sendMessage("Error connecting to Database.", Code.BAD);
         }
-
-
     }
 
     private String format(FitnessRecord record) {
