@@ -118,7 +118,7 @@ public class Database {
         return getFitnessRecords(userId, 10);
     }
 
-    public List<FitnessRecord> getFitnessRecords(int userId, int nLast) throws IOException {
+    private List<FitnessRecord> getFitnessRecords(int userId, int nLast) throws IOException {
         return ListUtils.nLast(nLast, getFitnessRecordsForUser(userId));
     }
 
@@ -126,7 +126,7 @@ public class Database {
         return getMealRecords(userId, 10);
     }
 
-    public List<MealRecord> getMealRecords(int userId, int nLast) throws IOException {
+    private List<MealRecord> getMealRecords(int userId, int nLast) throws IOException {
         return ListUtils.nLast(nLast, getMealRecordsForUser(userId));
     }
 

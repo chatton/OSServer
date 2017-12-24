@@ -19,7 +19,7 @@ public class UserHandler implements Runnable {
     private final ObjectInputStream objIn;
     private final Database db;
 
-    public UserHandler(final Socket socket, final Database db) throws IOException {
+    UserHandler(final Socket socket, final Database db) throws IOException {
         objOut = new ObjectOutputStream(socket.getOutputStream());
         objIn = new ObjectInputStream(socket.getInputStream());
         this.db = db;

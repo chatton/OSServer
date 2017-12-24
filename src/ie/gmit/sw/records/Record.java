@@ -8,7 +8,7 @@ public abstract class Record implements DatabaseItem {
     private final int userId;
     private final RecordType type;
 
-    protected Record(int id, int userId, RecordType type) {
+    Record(int id, int userId, RecordType type) {
         this.id = id;
         this.type = type;
         this.userId = userId;
