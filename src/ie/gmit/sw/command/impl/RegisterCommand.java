@@ -36,7 +36,12 @@ public class RegisterCommand extends DatabaseCommand {
     }
 
     private boolean doubleOkay(String number) {
-        return number.matches("[\\d]+\\.?\\d+");
+        try {
+            Double.parseDouble(number);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     private boolean intOkay(String number) {

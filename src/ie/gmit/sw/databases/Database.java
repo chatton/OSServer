@@ -43,19 +43,23 @@ public class Database {
 
     @SuppressWarnings("all")
     private void createFileIfAbsent(String path) throws IOException {
-        final File file = new File(path);
-        if (!file.exists()) {
-            Log.info("Creating file [" + path + "]");
-            file.createNewFile();
+        synchronized (this) {
+            final File file = new File(path);
+            if (!file.exists()) {
+                Log.info("Creating file [" + path + "]");
+                file.createNewFile();
+            }
         }
     }
 
     @SuppressWarnings("all")
     private void createDirIfAbsent(String path) throws IOException {
-        final File file = new File(path);
-        if (!file.exists()) {
-            Log.info("Creating directory [" + path + "]");
-            file.mkdir();
+        synchronized (this) {
+            final File file = new File(path);
+            if (!file.exists()) {
+                Log.info("Creating directory [" + path + "]");
+                file.mkdir();
+            }
         }
     }
 
@@ -176,9 +180,8 @@ public class Database {
             /*
             Try with resources syntax handles the closing of writers for me.
              */
-            try (FileWriter fw = new FileWriter(recordFile, true);
-                 BufferedWriter bw = new BufferedWriter(fw)) {
-                bw.write(record.toDatabaseFormat() + System.lineSeparator());
+            try (final BufferedWriter writer = new BufferedWriter(new FileWriter(recordFile, true))) {
+                writer.write(record.toDatabaseFormat() + System.lineSeparator());
                 return true;
             }
         }
@@ -223,7 +226,7 @@ public class Database {
     /*
     returns true or false for if the provided name is available.
      */
-    public boolean nameAvailable(String name) throws IOException {
+    public boolean nameAvailable(final String name) throws IOException {
         synchronized (this) {
             return getUsers().stream().noneMatch(user -> user.getUserName().equals(name));
         }
@@ -247,12 +250,12 @@ public class Database {
                 .orElse(records.size()); // otherwise just give back the total number of records which will be unique if we've reached it.
     }
 
-    public void addUser(User user) throws IOException {
+    public void addUser(final User user) throws IOException {
         add(user, usersPath);
     }
 
-    public boolean addRecord(Record record) throws IOException {
-        record.setId(getNextRecordId(record.getUserId()));
+    public boolean addRecord(final Record record) throws IOException {
+        record.setId(getNextRecordId(record.getUserId())); // assign a unique ID to the record before saving.
         return saveRecord(record);
     }
 }

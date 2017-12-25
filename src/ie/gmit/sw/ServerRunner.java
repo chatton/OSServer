@@ -7,17 +7,29 @@ import ie.gmit.sw.server.Server;
 import java.io.IOException;
 
 public class ServerRunner {
-    public static void main(String[] args) throws IOException {
+
+    public static void main(String[] args) {
+        checkDebugMode(args);
+        startServer();
+    }
+
+    private static void checkDebugMode(String[] args) {
         if (args.length > 0) {
             final String debug = args[0];
-            if (debug.equalsIgnoreCase("true")) {
+            if (debug.equalsIgnoreCase("debug")) {
                 Log.toggleDebugMode();
             }
         }
+    }
 
-        final Database db = new Database();
-        final Server server = new Server(9090, db);
-        server.start();
+    private static void startServer() {
+        try {
+            final Database db = new Database();
+            final Server server = new Server(9090, db);
+            server.start();
+        } catch (IOException e) {
+            Log.error("Error starting server: " + e.getMessage());
+        }
     }
 
 }

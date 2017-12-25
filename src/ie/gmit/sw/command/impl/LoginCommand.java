@@ -1,12 +1,11 @@
 package ie.gmit.sw.command.impl;
 
 import ie.gmit.sw.command.basecommands.DatabaseCommand;
+import ie.gmit.sw.databases.Database;
 import ie.gmit.sw.logging.Log;
 import ie.gmit.sw.serialize.Code;
-import ie.gmit.sw.serialize.Message;
 import ie.gmit.sw.server.Client;
 import ie.gmit.sw.server.User;
-import ie.gmit.sw.databases.Database;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -34,7 +33,6 @@ public class LoginCommand extends DatabaseCommand {
     @Override
     public void execute() {
         Log.info("Login attempt beginning");
-
         sendMessage("Enter Username: ");
         final String userName = readMessage().message();
         Log.info("User name: " + userName);

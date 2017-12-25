@@ -1,10 +1,10 @@
 package ie.gmit.sw.server;
 
 import ie.gmit.sw.command.CommandFactory;
+import ie.gmit.sw.databases.Database;
 import ie.gmit.sw.logging.Log;
 import ie.gmit.sw.serialize.Message;
 import ie.gmit.sw.command.Command;
-import ie.gmit.sw.databases.Database;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -18,16 +18,18 @@ public class UserHandler implements Runnable {
     private final ObjectOutputStream objOut;
     private final ObjectInputStream objIn;
     private final Database db;
+    private boolean running;
 
     UserHandler(final Socket socket, final Database db) throws IOException {
         objOut = new ObjectOutputStream(socket.getOutputStream());
         objIn = new ObjectInputStream(socket.getInputStream());
         this.db = db;
+        running = true;
     }
 
     private Message readMessage() {
         try {
-            Message msg = (Message) objIn.readObject();
+            final Message msg = (Message) objIn.readObject();
             Log.debug("Reading message: " + msg);
             return msg;
         } catch (IOException | ClassNotFoundException e) {
@@ -40,14 +42,9 @@ public class UserHandler implements Runnable {
     @Override
     public void run() {
         final Client client = new Client(); // represents the connected client.
-        final CommandFactory factory = new CommandFactory(objIn, objOut, db, client);
-        while (true) { // stay active until user sends EXIT signal or kills the program.
+        final CommandFactory factory = new CommandFactory(objIn, objOut, db, client, this);
+        while (running) { // stay active until user sends EXIT signal or kills the program.
             final Message choice = readMessage();
-            if (choice.code() == EXIT) { // socket disconnected or user wants to quit.
-                Log.info("User disconnected.");
-                closeStreams();
-                return;
-            }
             // based on the code sent, create the relevant command.
             final Command cmd = factory.makeCommand(choice.code());
             Log.debug("Executing: [" + cmd.getClass().getSimpleName() + "]");
@@ -61,7 +58,12 @@ public class UserHandler implements Runnable {
             objOut.close();
         } catch (IOException e) {
             Log.warning("Error closing streams. Message:" + e.getMessage());
-            e.printStackTrace();
         }
+    }
+
+    public void stop() {
+        Log.info("User disconnecting.");
+        running = false;
+        closeStreams();
     }
 }

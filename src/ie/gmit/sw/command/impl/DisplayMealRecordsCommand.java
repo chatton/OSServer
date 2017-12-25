@@ -5,14 +5,11 @@ import ie.gmit.sw.databases.Database;
 import ie.gmit.sw.logging.Log;
 import ie.gmit.sw.records.MealRecord;
 import ie.gmit.sw.serialize.Code;
-import ie.gmit.sw.serialize.Message;
 import ie.gmit.sw.server.Client;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class DisplayMealRecordsCommand extends DatabaseCommand {
 

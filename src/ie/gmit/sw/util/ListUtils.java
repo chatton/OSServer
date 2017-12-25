@@ -10,7 +10,7 @@ public class ListUtils {
     /*
     return the N last elements from a list.
      */
-    public static <T> List<T> nLast(int nLast, List<T> list) {
+    public static <T> List<T> nLast(final int nLast, final List<T> list) {
         int startingPos = list.size() - nLast;
         startingPos = startingPos < 0 ? 0 : startingPos;
         return list.stream()

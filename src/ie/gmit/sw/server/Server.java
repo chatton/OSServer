@@ -13,7 +13,6 @@ public class Server {
 
     private final int port;
     private final Database db;
-    private ServerSocket ss;
     private ExecutorService executor;
     private volatile boolean running = true;
 
@@ -29,7 +28,8 @@ public class Server {
     }
 
     public void start() throws IOException {
-        ss = new ServerSocket(port);
+
+        final ServerSocket ss = new ServerSocket(port);
 
         while (running) {
             Log.info("Listening for connection.");
@@ -41,6 +41,4 @@ public class Server {
         Log.info("Server shutting down.");
         executor.shutdown();
     }
-
-
 }

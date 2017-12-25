@@ -2,12 +2,14 @@ package ie.gmit.sw.records;
 
 public class MealRecord extends Record {
 
+    private final static int MAX_DESCRIPTION_LENGTH = 100;
+
     private final String desc;
     private final String mealType;
 
     public MealRecord(int id, int userId, String mealType, String desc) {
         super(id, userId, RecordType.MEAL);
-        if (desc.length() > 100) {
+        if (desc.length() > MAX_DESCRIPTION_LENGTH) {
             throw new IllegalArgumentException("Description can have a maximum of 100 characters.");
         }
         this.desc = desc;

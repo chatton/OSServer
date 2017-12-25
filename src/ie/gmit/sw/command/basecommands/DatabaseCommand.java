@@ -1,7 +1,7 @@
 package ie.gmit.sw.command.basecommands;
 
-import ie.gmit.sw.server.Client;
 import ie.gmit.sw.databases.Database;
+import ie.gmit.sw.server.Client;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

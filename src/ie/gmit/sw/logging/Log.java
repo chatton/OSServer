@@ -2,6 +2,9 @@ package ie.gmit.sw.logging;
 
 import java.util.Calendar;
 
+/*
+Simply logging class to display different levels of logging information.
+ */
 public class Log {
 
     private static final String ANSI_RED = "\u001B[31m";
@@ -16,8 +19,7 @@ public class Log {
         debugEnabled = !debugEnabled;
     }
 
-    private Log() {
-    } // prevent instantiation
+    private Log(){} // prevent instantiation
 
     public static void info(String text) {
         displayLog("[INFO]", ANSI_GREEN, text);
