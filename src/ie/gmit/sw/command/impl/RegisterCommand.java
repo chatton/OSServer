@@ -28,7 +28,7 @@ public class RegisterCommand extends DatabaseCommand {
     }
 
     private boolean passwordOk(String password) {
-        return !password.contains(" ");
+        return !password.contains(" ") && !password.isEmpty();
     }
 
     private boolean ppsnOk(String ppsn) {
@@ -45,7 +45,12 @@ public class RegisterCommand extends DatabaseCommand {
     }
 
     private boolean intOkay(String number) {
-        return number.matches("^\\d+$");
+        try {
+            Integer.parseInt(number);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
 
@@ -111,7 +116,6 @@ public class RegisterCommand extends DatabaseCommand {
         }
 
         double height = Double.parseDouble(heightMessage.message());
-
 
         sendMessage("Enter weight: ");
         Message weightMessage = readMessage();

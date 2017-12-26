@@ -10,6 +10,9 @@ import ie.gmit.sw.server.Client;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.List;
+
+import static ie.gmit.sw.util.ListUtils.nLast;
 
 public class DisplayMealRecordsCommand extends DatabaseCommand {
 
@@ -28,13 +31,15 @@ public class DisplayMealRecordsCommand extends DatabaseCommand {
         }
 
         try {
-            final String messageString = db.getMealRecords(client.id())
-                    .stream() // looking at each record for that client
+            final List<MealRecord> records = db.getMealRecords(client.id());
+            final String messageString = nLast(10, records) // look at just the last 10 records.
+                    .stream()
                     .map(this::format) // make it human readable.
                     .reduce((rec1, rec2) -> rec1 + System.lineSeparator() + rec2) // build up list of formatted descriptions
                     .orElse("No records Available."); // if there aren't any, indicate no records
 
             sendMessage(messageString, Code.OK);
+
         } catch (IOException e) {
             Log.error("Error connecting to database. ERROR: " + e);
             sendMessage("Error connecting to Database.", Code.BAD);

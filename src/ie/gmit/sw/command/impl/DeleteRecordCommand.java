@@ -38,7 +38,7 @@ public class DeleteRecordCommand extends DatabaseCommand {
             return;
         } catch (IOException e) {
             Log.error("Failed writing to database.");
-            sendMessage("Error deleting record.", Code.BAD);
+            sendMessage("Error deleting record from database.", Code.BAD);
             return;
         }
 
@@ -46,8 +46,9 @@ public class DeleteRecordCommand extends DatabaseCommand {
             Log.info("Successfully deleted record.");
             sendMessage("Deleted record successfully", Code.OK);
         } else {
-            Log.error("Deleting of record failed.");
-            sendMessage("Deleting record failed.", Code.BAD);
+            final String errorMsg = "Deleting record [" + id + "] failed.";
+            Log.error(errorMsg);
+            sendMessage(errorMsg, Code.BAD);
         }
     }
 }

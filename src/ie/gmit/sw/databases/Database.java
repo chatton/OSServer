@@ -33,10 +33,15 @@ public class Database {
     private final String recordsPath;
     private final String sep;
 
-    public Database(final String usersPath, final String recordsPath) throws IOException {
+    public Database() throws IOException {
+        this("data", "data/users.dat", "data/user_records/");
+    }
+
+    public Database(final String dataPath, final String usersPath, final String recordsPath) throws IOException {
         this.usersPath = usersPath;
         this.recordsPath = recordsPath;
-        this.sep = ";";
+        sep = ";";
+        createDirIfAbsent(dataPath);
         createFileIfAbsent(usersPath);
         createDirIfAbsent(recordsPath);
     }
@@ -63,16 +68,12 @@ public class Database {
         }
     }
 
-    public Database() throws IOException {
-        this("data/users.dat", "data/user_records/");
-    }
-
     /*
     Given a user id, returns all of the records for that specific user.
      */
-    private List<Record> getRecordsForUser(int userId) throws IOException {
+    private List<Record> getRecordsForUser(final int userId) throws IOException {
         synchronized (this) {
-            final File recordFile = getUserRecordsFile(userId);
+            final File recordFile = getUserFile(userId);
             if (recordFile.exists()) {
                 try (final Stream<String> lines = Files.lines(Paths.get(recordFile.getPath()))) {
                     return lines.map(line -> line.split(sep)) // create array of args for each line
@@ -110,28 +111,12 @@ public class Database {
         return removed;
     }
 
-    private List<MealRecord> getMealRecordsForUser(int userId) throws IOException {
-        return getRecordsOfTypeFor(userId, RecordType.MEAL);
-    }
-
-    private List<FitnessRecord> getFitnessRecordsForUser(int userId) throws IOException {
+    public List<FitnessRecord> getFitnessRecords(int userId) throws IOException {
         return getRecordsOfTypeFor(userId, RecordType.FITNESS);
     }
 
-    public List<FitnessRecord> getFitnessRecords(int userId) throws IOException {
-        return getFitnessRecords(userId, 10);
-    }
-
-    private List<FitnessRecord> getFitnessRecords(int userId, int nLast) throws IOException {
-        return ListUtils.nLast(nLast, getFitnessRecordsForUser(userId));
-    }
-
     public List<MealRecord> getMealRecords(int userId) throws IOException {
-        return getMealRecords(userId, 10);
-    }
-
-    private List<MealRecord> getMealRecords(int userId, int nLast) throws IOException {
-        return ListUtils.nLast(nLast, getMealRecordsForUser(userId));
+        return getRecordsOfTypeFor(userId, RecordType.MEAL);
     }
 
     /*
@@ -139,7 +124,7 @@ public class Database {
     in memeory, and then they are re-saved.
      */
     @SuppressWarnings("all")
-    private void overwriteRecords(List<Record> records, int userId) throws IOException {
+    private void overwriteRecords(final List<Record> records, final int userId) throws IOException {
         synchronized (this) {
             final File recordFile = getUserFile(userId);
             recordFile.delete(); // method call for side effect, not using return value.
@@ -152,22 +137,15 @@ public class Database {
     /*
     Gets the file corresponding to a given user id. May or may not exist.
      */
-    private File getUserFile(int userId) {
-        return new File("data/user_records/" + userId + ".dat");
-    }
-
-    /*
-    Gets the file holding all the records of the user with the provided user id. May or may not exist.
-     */
-    private File getUserRecordsFile(int userId) {
-        return new File("data/user_records/" + userId + ".dat");
+    private File getUserFile(final int userId) {
+        return new File(recordsPath + userId + ".dat");
     }
 
     /*
     In order to save a record, The file is created if it doesn't already exist.
     Then a line is appended to the file which represents the new Record to be added.
      */
-    private boolean saveRecord(Record record) throws IOException {
+    private boolean saveRecord(final Record record) throws IOException {
         synchronized (this) {
             final File recordFile = getUserFile(record.getUserId());
 
