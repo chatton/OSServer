@@ -22,8 +22,6 @@ public class DisplayMealRecordsCommand extends DatabaseCommand {
 
     @Override
     public void execute() {
-        Log.info("Display Meal Records attempt.");
-
         if (!client.loggedIn()) {
             Log.warning("User attempted to display meal records but was not logged in.");
             sendMessage("You must be logged in to view records.", Code.FORBIDDEN);
@@ -35,8 +33,8 @@ public class DisplayMealRecordsCommand extends DatabaseCommand {
             final String messageString = nLast(10, records) // look at just the last 10 records.
                     .stream()
                     .map(this::format) // make it human readable.
-                    .reduce((rec1, rec2) -> rec1 + System.lineSeparator() + rec2) // build up list of formatted descriptions
-                    .orElse("No records Available."); // if there aren't any, indicate no records
+                    .reduce((rec1, rec2) -> rec1 + System.lineSeparator() + rec2) // build up string of formatted descriptions
+                    .orElse("No meal records Available."); // if there aren't any, indicate no records
 
             sendMessage(messageString, Code.OK);
 

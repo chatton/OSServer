@@ -6,7 +6,6 @@ import ie.gmit.sw.records.FitnessRecord;
 import ie.gmit.sw.records.MealRecord;
 import ie.gmit.sw.records.Record;
 import ie.gmit.sw.records.RecordType;
-import ie.gmit.sw.util.ListUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -46,24 +45,30 @@ public class Database {
         createDirIfAbsent(recordsPath);
     }
 
-    @SuppressWarnings("all")
     private void createFileIfAbsent(String path) throws IOException {
         synchronized (this) {
             final File file = new File(path);
             if (!file.exists()) {
-                Log.info("Creating file [" + path + "]");
-                file.createNewFile();
+                final boolean createdFile = file.createNewFile();
+                if (createdFile) {
+                    Log.info("Successfully created file [" + path + "]");
+                } else {
+                    Log.error("Error creating file [" + path + "]");
+                }
             }
         }
     }
 
-    @SuppressWarnings("all")
-    private void createDirIfAbsent(String path) throws IOException {
+    private void createDirIfAbsent(final String path) throws IOException {
         synchronized (this) {
             final File file = new File(path);
             if (!file.exists()) {
-                Log.info("Creating directory [" + path + "]");
-                file.mkdir();
+                final boolean createdDir = file.mkdir();
+                if (createdDir) {
+                    Log.info("Successfully created directory [" + path + "]");
+                } else {
+                    Log.error("Error creating directory [" + path + "]");
+                }
             }
         }
     }
@@ -89,7 +94,7 @@ public class Database {
     Provide a way of extracting only records of a certain type.
      */
     @SuppressWarnings("unchecked")
-    private <T extends Record> List<T> getRecordsOfTypeFor(int userId, RecordType type) throws IOException {
+    private <T extends Record> List<T> getRecordsOfTypeFor(final int userId, final RecordType type) throws IOException {
         return getRecordsForUser(userId)
                 .stream()
                 .filter(record -> record.getType() == type)
@@ -121,13 +126,15 @@ public class Database {
 
     /*
     In order to delete a record, the records are read, one is removed from the list
-    in memeory, and then they are re-saved.
+    in memory, and then they are re-saved.
      */
-    @SuppressWarnings("all")
     private void overwriteRecords(final List<Record> records, final int userId) throws IOException {
         synchronized (this) {
             final File recordFile = getUserFile(userId);
-            recordFile.delete(); // method call for side effect, not using return value.
+            final boolean deleted = recordFile.delete();
+            if (!deleted) {
+                throw new IOException("Failed deleting file [" + recordFile + "]");
+            }
             for (final Record record : records) { // save records.
                 saveRecord(record);
             }
@@ -155,9 +162,6 @@ public class Database {
                 }
             }
 
-            /*
-            Try with resources syntax handles the closing of writers for me.
-             */
             try (final BufferedWriter writer = new BufferedWriter(new FileWriter(recordFile, true))) {
                 writer.write(record.toDatabaseFormat() + System.lineSeparator());
                 return true;
@@ -205,15 +209,12 @@ public class Database {
     returns true or false for if the provided name is available.
      */
     public boolean nameAvailable(final String name) throws IOException {
-        synchronized (this) {
-            return getUsers().stream().noneMatch(user -> user.getUserName().equals(name));
-        }
+        return getUsers().stream().noneMatch(user -> user.getUserName().equals(name));
     }
 
     /*
     Generates a unique to that user ID.
     */
-    @SuppressWarnings("all")
     private int getNextRecordId(int userId) throws IOException {
         final List<Record> records = getRecordsForUser(userId); // get the users existing records.
 
@@ -225,7 +226,7 @@ public class Database {
         return IntStream.iterate(0, i -> i + 1)
                 .filter(num -> !ids.contains(num)) // want an id that doesn't exist already
                 .findFirst() // first one will do
-                .orElse(records.size()); // otherwise just give back the total number of records which will be unique if we've reached it.
+                .orElse(records.size()); // Should never reach here as the int stream isn't limited.
     }
 
     public void addUser(final User user) throws IOException {

@@ -29,26 +29,4 @@ public abstract class Record implements DatabaseItem {
     public RecordType getType() {
         return type;
     }
-
-
-    @Override
-    public int hashCode() {
-        return id ^ userId;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (other == null) {
-            return false;
-        }
-
-        if (!(other.getClass().getName().equals(getClass().getName()))) {
-            return false;
-        }
-
-        Record record = (Record) other;
-        return id == record.id
-                && userId == record.userId
-                && record.type == type;
-    }
 }

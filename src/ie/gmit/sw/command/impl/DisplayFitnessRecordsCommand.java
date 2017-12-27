@@ -33,8 +33,8 @@ public class DisplayFitnessRecordsCommand extends DatabaseCommand {
             final String messageString = nLast(10, records) // look at just the last 10 records.
                     .stream()
                     .map(this::format) // make it human readable.
-                    .reduce((rec1, rec2) -> rec1 + System.lineSeparator() + rec2) // build up list of formatted descriptions
-                    .orElse("No records Available."); // if there aren't any, indicate no records
+                    .reduce((rec1, rec2) -> rec1 + System.lineSeparator() + rec2) // build up string of formatted descriptions
+                    .orElse("No fitness records Available."); // if there aren't any, indicate no records
 
             sendMessage(messageString, Code.OK);
         } catch (IOException e) {
