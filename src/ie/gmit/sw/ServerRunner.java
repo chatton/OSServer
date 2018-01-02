@@ -29,6 +29,8 @@ public class ServerRunner {
             server.start();
         } catch (IOException e) {
             Log.error("Error starting server: " + e.getMessage());
+        } catch (Exception e){
+            Log.error("Unexpected error: " + e);
         }
     }
 
